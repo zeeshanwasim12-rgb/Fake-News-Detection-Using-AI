@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Batch Analysis — FakeCheck AI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Batch Analysis</h1>
+  <p>Upload a CSV with a <code>text</code> column to classify many articles at once. Great for
+     checking a whole dataset or scraped article dump in one go.</p>
+</div>
+
+<div class="card" style="max-width:560px;">
+  <h2>Upload CSV</h2>
+  <form method="POST" action="{{ url_for('batch') }}" enctype="multipart/form-data">
+    <div class="field">
+      <label>CSV file (must contain a "text" column)</label>
+      <input type="file" name="file" accept=".csv" required>
+    </div>
+    <div class="field">
+      <label>Model</label>
+      <select name="model">
+        {% for key, label in model_choices.items() %}
+          <option value="{{ key }}" {{ 'selected' if key==selected_model }}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" type="submit">📁 Analyze CSV</button>
+  </form>
+</div>
+
+{% if error %}
+<div class="banner" style="color:var(--fake); border-color:rgba(255,93,122,0.4);">⚠️ {{ error }}</div>
+{% endif %}
+
+{% if rows %}
+<div class="card" style="margin-top:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2>Results ({{ rows|length }} articles, model: {{ model_choices[selected_model] }})</h2>
+    <form method="POST" action="{{ url_for('batch_download') }}">
+      <input type="hidden" name="results_json" value='{{ rows | tojson }}'>
+      <button class="btn secondary small" type="submit">⬇️ Download results CSV</button>
+    </form>
+  </div>
+  <table>
+    <tr><th>#</th><th>Text (truncated)</th><th>Prediction</th><th>Prob. Fake</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ r.text[:90] }}{{ '…' if r.text|length > 90 }}</td>
+      <td><span class="tag {{ 'fake' if r.prediction=='FAKE' else 'real' }}">{{ r.prediction }}</span></td>
+      <td>{{ '%.1f' % (r.prob*100) }}%</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+{% endblock %}

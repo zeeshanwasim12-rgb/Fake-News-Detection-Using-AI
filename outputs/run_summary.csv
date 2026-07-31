@@ -1,0 +1,5 @@
+,accuracy,precision,recall,f1
+KNN,1.0,1.0,1.0,1.0
+LogisticRegression,1.0,1.0,1.0,1.0
+RandomForest,1.0,1.0,1.0,1.0
+NeuralNet,1.0,1.0,1.0,1.0

@@ -1,0 +1,16 @@
+{
+  "documents": 600,
+  "class_counts": {
+    "real": 300,
+    "fake": 300
+  },
+  "missing_text_rows_removed": 0,
+  "article_length_characters": {
+    "mean": 321.44,
+    "median": 322.0
+  },
+  "article_length_tokens_after_preprocessing": {
+    "mean": 34.22,
+    "median": 34.0
+  }
+}

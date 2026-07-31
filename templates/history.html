@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}History — FakeCheck AI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Check History</h1>
+  <p>Everything you've checked this session (stored only in your browser session, not saved to a database).</p>
+</div>
+
+{% if items %}
+  <form method="POST" action="{{ url_for('clear_history') }}" style="margin-bottom:16px;">
+    <button class="btn secondary small" type="submit">🗑️ Clear history</button>
+  </form>
+  {% for item in items %}
+  <div class="history-item">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+      <div style="flex:1;">{{ item.text[:160] }}{{ '…' if item.text|length > 160 }}</div>
+      <span class="tag {{ 'fake' if item.prediction=='FAKE' else 'real' }}">{{ item.prediction }}</span>
+    </div>
+    <div class="meta">Model: {{ item.model }} · Prob. fake: {{ '%.1f' % (item.prob*100) }}% · {{ item.time }}</div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card">
+    <div class="empty-state">
+      <div class="big-icon">🕒</div>
+      <p>No checks yet this session. Head to the <a href="{{ url_for('home') }}" style="color:var(--accent);">Home page</a> to analyze some text.</p>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

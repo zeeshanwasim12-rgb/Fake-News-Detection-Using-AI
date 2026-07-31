@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — FakeCheck AI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Model Dashboard</h1>
+  <p>Live comparison of all four from-scratch algorithms, evaluated on a held-out test split
+     of the current training data.</p>
+</div>
+
+<div class="grid grid-4" style="margin-bottom:22px;">
+  {% for name, m in metrics.items() %}
+  <div class="card">
+    <h3>{{ name }}</h3>
+    <div class="stat-value">{{ '%.1f' % (m.f1*100) }}%</div>
+    <div class="stat-label">F1-score</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Accuracy / Precision / Recall / F1</h2>
+    <canvas id="metricsChart" height="220"></canvas>
+  </div>
+  <div class="card">
+    <h2>Confusion Matrix — {{ best_model }} (best F1)</h2>
+    <canvas id="confChart" height="220"></canvas>
+    <p style="font-size:12px;color:var(--text-dim);margin-top:10px;">
+      Rows = actual class, columns = predicted class.
+    </p>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <h2>Raw metrics table</h2>
+  <table>
+    <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-score</th></tr>
+    {% for name, m in metrics.items() %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>{{ '%.3f' % m.accuracy }}</td>
+      <td>{{ '%.3f' % m.precision }}</td>
+      <td>{{ '%.3f' % m.recall }}</td>
+      <td>{{ '%.3f' % m.f1 }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<script>
+const metricNames = {{ metric_names | tojson }};
+const modelNames = {{ model_names | tojson }};
+const dataByMetric = {{ data_by_metric | tojson }};
+
+new Chart(document.getElementById('metricsChart'), {
+  type: 'bar',
+  data: {
+    labels: modelNames,
+    datasets: metricNames.map((m, i) => ({
+      label: m,
+      data: dataByMetric[m],
+      backgroundColor: ['#3867f5', '#7c4dff', '#0aa77a', '#ee9b22'][i]
+    }))
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: true, max: 1, ticks: { color: '#65708a' }, grid: { color: '#e6eaf2' } },
+      x: { ticks: { color: '#65708a' }, grid: { display: false } }
+    },
+    plugins: { legend: { labels: { color: '#25304a' } } }
+  }
+});
+
+const cm = {{ confusion_matrix | tojson }};
+new Chart(document.getElementById('confChart'), {
+  type: 'bar',
+  data: {
+    labels: ['True Real', 'True Fake'],
+    datasets: [
+      { label: 'Predicted Real', data: [cm[0][0], cm[1][0]], backgroundColor: '#0aa77a' },
+      { label: 'Predicted Fake', data: [cm[0][1], cm[1][1]], backgroundColor: '#e7506e' }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: { beginAtZero: true, ticks: { color: '#65708a' }, grid: { color: '#e6eaf2' } },
+      x: { ticks: { color: '#65708a' }, grid: { display: false } }
+    },
+    plugins: { legend: { labels: { color: '#25304a' } } }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Home — FakeCheck AI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>Fake News Checker</h1>
+  <p>Paste a headline or article below. Pick which from-scratch model to run it through, then
+     see the verdict, confidence score, and the specific words that pushed the decision.</p>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Analyze Text</h2>
+    <form method="POST" action="{{ url_for('predict') }}">
+      <div class="field">
+        <label>Article / headline text</label>
+        <textarea name="text" placeholder="Paste news text here...">{{ text or '' }}</textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Model</label>
+          <select name="model">
+            {% for key, label in model_choices.items() %}
+              <option value="{{ key }}" {{ 'selected' if key==selected_model }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Feature type</label>
+          <select name="feature_type">
+            <option value="tfidf" {{ 'selected' if feature_type=='tfidf' }}>TF-IDF (unigrams)</option>
+            <option value="tfidf_bigram" {{ 'selected' if feature_type=='tfidf_bigram' }}>TF-IDF (uni+bigrams)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" type="submit">🔍 Check this text</button>
+    </form>
+
+    <div class="field" style="margin-top:18px;">
+      <label>Or try an example</label>
+      {% for ex in examples %}
+        <span class="chip" onclick="document.querySelector('textarea[name=text]').value = this.dataset.full; document.querySelector('textarea[name=text]').scrollIntoView({behavior:'smooth'});" data-full="{{ ex }}">{{ ex[:38] }}{{ '…' if ex|length > 38 }}</span>
+      {% endfor %}
+    </div>
+
+    {% if result %}
+    <div class="result-box {{ 'fake' if result=='FAKE' else 'real' }}">
+      <div class="result-verdict">
+        {{ '🚨' if result=='FAKE' else '✅' }} {{ result }}
+        <span class="badge {{ 'fake' if result=='FAKE' else 'real' }}">{{ model_choices[selected_model] }}</span>
+      </div>
+      <div class="meter"><div class="meter-fill" style="width:100%"></div></div>
+      <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim);">
+        <span>Probability of FAKE: <strong style="color:var(--text)">{{ '%.1f' % (prob*100) }}%</strong></span>
+        <span>Confidence: <strong style="color:var(--text)">{{ '%.1f' % (confidence*100) }}%</strong></span>
+      </div>
+
+      {% if top_words %}
+      <div style="margin-top:16px;">
+        <label style="margin-bottom:8px;">Top contributing words</label>
+        <div class="keyword-list">
+          {% for w, score in top_words %}
+            <span class="keyword {{ 'pos' if score > 0 else 'neg' }}">{{ w }} {{ '%.2f' % score }}</span>
+          {% endfor %}
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);margin-top:8px;">
+          Red = pushes toward FAKE · Green = pushes toward REAL (Logistic Regression weights only)
+        </p>
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Quick Stats</h2>
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap:14px;">
+      <div>
+        <div class="stat-label">Training articles</div>
+        <div class="stat-value">{{ stats.n_docs }}</div>
+      </div>
+      <div>
+        <div class="stat-label">Vocabulary size</div>
+        <div class="stat-value">{{ stats.vocab_size }}</div>
+      </div>
+      <div>
+        <div class="stat-label">Real / Fake split</div>
+        <div class="stat-value">{{ stats.n_real }} / {{ stats.n_fake }}</div>
+      </div>
+      <div>
+        <div class="stat-label">Best model (F1)</div>
+        <div class="stat-value" style="font-size:18px;">{{ stats.best_model }}</div>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border); margin:18px 0;">
+    <p style="font-size:13px;color:var(--text-dim);">
+      Head to the <a href="{{ url_for('dashboard') }}" style="color:var(--accent);">Model Dashboard</a>
+      to compare all four algorithms, or <a href="{{ url_for('batch') }}" style="color:var(--accent);">Batch Analysis</a>
+      to run a whole CSV of articles at once.
+    </p>
+  </div>
+</div>
+{% endblock %}

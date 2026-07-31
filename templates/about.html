@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}About — FakeCheck AI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>About &amp; Methodology</h1>
+  <p>How this project works, and what its results do and don't mean.</p>
+</div>
+
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Pipeline (built from scratch)</h2>
+    <table>
+      <tr><th>Stage</th><th>Technique</th></tr>
+      <tr><td>Cleaning</td><td>Regex punctuation/URL/digit removal, lowercasing</td></tr>
+      <tr><td>Tokenizing</td><td>Whitespace tokenizer + custom stopword list + rule-based stemmer</td></tr>
+      <tr><td>Features</td><td>TF-IDF (hand-coded formula), optional bigrams, L2-normalized</td></tr>
+      <tr><td>Models</td><td>KNN, Logistic Regression (gradient descent), Random Forest (bagged Gini trees), 1-hidden-layer Neural Net (manual backprop)</td></tr>
+      <tr><td>Evaluation</td><td>Accuracy / precision / recall / F1 / confusion matrix, computed manually</td></tr>
+    </table>
+    <p style="font-size:13px;color:var(--text-dim);margin-top:14px;">
+      No <code>sklearn</code>, <code>nltk</code>, or <code>gensim</code> is used anywhere —
+      every algorithm is implemented with NumPy directly in <code>src/</code>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Honest limitations</h2>
+    <ul style="font-size:14px; color:var(--text-dim); line-height:1.7; padding-left:18px;">
+      <li>This tool's accuracy is only as good as its <strong>training data</strong>. If
+        <code>data/news.csv</code> is still the bundled synthetic demo set, the model has
+        learned artificial writing patterns, not real-world misinformation signals.</li>
+      <li>No single classical ML model can reliably flag "any" fake news — real misinformation
+        detection at scale uses much larger, human-labeled datasets and often combines text
+        models with source credibility, fact-checking databases, and human review.</li>
+      <li>TF-IDF + these four models can't verify facts — they detect <em>writing style</em>
+        patterns (sensational language, formatting, etc.), which is a real but limited signal.</li>
+      <li>Treat every prediction here as a starting point for scrutiny, not a verdict.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card" style="margin-top:20px;">
+  <h2>Get better results</h2>
+  <p style="font-size:14px;color:var(--text-dim);">
+    Replace <code>data/news.csv</code> with the real Kaggle "Fake and Real News Dataset" or the
+    UCI Fake News Dataset (same <code>text,label</code> column format — see the project README),
+    then restart <code>app.py</code>. The dashboard and checker will automatically retrain on
+    the new data.
+  </p>
+</div>
+{% endblock %}

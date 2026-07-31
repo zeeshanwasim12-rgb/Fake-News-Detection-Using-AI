@@ -1,0 +1,81 @@
+FAKE NEWS DETECTION PROJECT - TERMINAL RUN GUIDE
+================================================
+
+These commands are for Windows PowerShell. Run them from the project folder.
+
+1. OPEN POWERSHELL IN THE PROJECT FOLDER
+
+cd "C:\Users\Zeeshan Wasim\Downloads\fake_news_project\fake_news_project"
+
+
+2. CREATE AND ACTIVATE THE PYTHON ENVIRONMENT
+
+python -m venv venv
+venv\Scripts\Activate.ps1
+
+If PowerShell blocks the activation script, allow it for this terminal only:
+
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+venv\Scripts\Activate.ps1
+
+
+3. INSTALL REQUIRED PACKAGES
+
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+
+4. CREATE THE OUTPUT FOLDER (ONLY NEEDED IF IT DOES NOT EXIST)
+
+New-Item -ItemType Directory -Force outputs
+
+
+5. RUN THE FULL TRAINING AND EVALUATION PIPELINE
+
+python main.py --data data/news.csv --features tfidf --max_features 3000 --output_prefix outputs/run
+
+Results will be written to the outputs folder:
+- outputs/run_eda.png
+- outputs/run_eda_summary.json
+- outputs/run_top_terms.csv
+- outputs/run_results.png
+- outputs/run_confusion_matrices.png
+- outputs/run_summary.csv
+
+
+6. OPTIONAL: RUN WITH ANOTHER FEATURE TYPE
+
+python main.py --data data/news.csv --features bow --max_features 3000 --output_prefix outputs/bow_run
+python main.py --data data/news.csv --features embedding --max_features 3000 --output_prefix outputs/embedding_run
+
+
+7. OPTIONAL: RECREATE THE INCLUDED SAMPLE DATASET
+
+python data/generate_sample_data.py
+
+
+8. OPTIONAL: PREPARE A KAGGLE DATASET
+
+Place Fake.csv and True.csv in the project folder, then run:
+
+python data/prepare_kaggle_data.py --fake Fake.csv --real True.csv --output data/news.csv
+
+Then run the pipeline again:
+
+python main.py --data data/news.csv --features tfidf --max_features 3000 --output_prefix outputs/run
+
+
+9. RUN THE FLASK WEB APPLICATION
+
+python app.py
+
+Open this address in a browser:
+
+http://127.0.0.1:5000
+
+Stop the web app with Ctrl+C in PowerShell.
+
+
+10. EXIT THE VIRTUAL ENVIRONMENT WHEN FINISHED
+
+deactivate

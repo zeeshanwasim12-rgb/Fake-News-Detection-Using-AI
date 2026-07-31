@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Fake News Checker{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='light-20260715') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">📰</div>
+        <span>FakeCheck AI</span>
+      </div>
+      <a class="nav-link {{ 'active' if active=='home' }}" href="{{ url_for('home') }}">
+        <span class="icon">🏠</span> Home
+      </a>
+      <a class="nav-link {{ 'active' if active=='dashboard' }}" href="{{ url_for('dashboard') }}">
+        <span class="icon">📊</span> Model Dashboard
+      </a>
+      <a class="nav-link {{ 'active' if active=='batch' }}" href="{{ url_for('batch') }}">
+        <span class="icon">📁</span> Batch Analysis
+      </a>
+      <a class="nav-link {{ 'active' if active=='history' }}" href="{{ url_for('history') }}">
+        <span class="icon">🕒</span> History
+      </a>
+      <a class="nav-link {{ 'active' if active=='about' }}" href="{{ url_for('about') }}">
+        <span class="icon">ℹ️</span> About / Methodology
+      </a>
+      <div class="sidebar-footer">
+        Built from scratch — no sklearn.<br>
+        TF-IDF · KNN · LogReg · RF · NN
+      </div>
+    </aside>
+    <main class="main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
